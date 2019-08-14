@@ -1,0 +1,25 @@
+@import '../../style/variables';
+
+.board {
+  width: $board-size + px;
+  outline: solid 1px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  max-height: $board-size + px;
+}
+
+.square {
+  width: $square-size + px;
+  height: $square-size + px;
+}
+
+.background-white {
+  background-color: white;
+}
+
+.background-black {
+  background-color: black;
+}

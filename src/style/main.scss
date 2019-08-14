@@ -1,2 +1,4 @@
 @import "../../node_modules/bootstrap/scss/bootstrap.scss";
+$mdi-font-path: "../../node_modules/@mdi/font/fonts";
+@import "../../node_modules/@mdi/font/scss/materialdesignicons.scss";
 @import "./_global.scss";

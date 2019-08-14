@@ -1,0 +1,19 @@
+@import '../../../style/variables';
+
+$piece-size: $square-size + px;
+
+.piece {
+  width: $piece-size;
+  height: $piece-size;
+  font-size: 40px;
+}
+
+.piece-black {
+  color: black;
+  text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
+}
+
+.piece-white {
+  color: white;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
