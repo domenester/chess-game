@@ -5,12 +5,14 @@ import { AppConfig } from '../config'
 import { BrowserRouter, Route } from 'react-router-dom'
 import { combineReducers, createStore } from 'redux'
 import pieceReducer from './pieces/piece/pieceReducers'
+import boardReducer from './board/boardReducers'
 import 'bootstrap'
 
 document.title = AppConfig.title;
 
 const reducers = combineReducers({
-  piece: pieceReducer
+  piece: pieceReducer,
+  board: boardReducer
 });
 
 export default class Main extends React.Component{

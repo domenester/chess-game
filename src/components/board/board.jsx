@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { setSelectedPiece } from './boardActions'
+import { setSelectedPiece, addPieceToBoard, setAllowedToMove } from './boardActions'
 import King from '../pieces/king'
 import Rook from '../pieces/rook'
 import Knight from '../pieces/knight'
@@ -11,7 +11,7 @@ import Pawn from '../pieces/pawn'
 import Square from './square/square'
 import './board.scss'
 
-export default class Board extends Component {
+class Board extends Component {
 
   constructor() {
     super();
@@ -49,6 +49,7 @@ export default class Board extends Component {
   }
 
   render() {
+    console.log('Board: ', this.state, this.props)
     return (
       <div className="board row m-auto">
         { this.buildBoard() }
@@ -61,7 +62,7 @@ export default class Board extends Component {
       for( let y = 0; y < 8; y++ ) {
         for( let x = 0; x < 8; x++ ) {
           const componentKey = (y*8) + x;
-          squares.push(this.square([x, y], componentKey));
+          squares.push(this.square({x, y}, componentKey));
         }
       }
     return squares;
@@ -75,56 +76,43 @@ export default class Board extends Component {
   }
 
   square( coordinate, componentKey ) {
-    let selectedColor = this.blackOrWhiteBackGround(coordinate[0], coordinate[1]);
+    let selectedColor = this.blackOrWhiteBackGround(coordinate.x, coordinate.y);
     return (
       <Square
         selectedColor={selectedColor}
         coordinate={coordinate}
         key={componentKey}
       >
-        { ( coordinate[1] < 2 || coordinate[1] > 5 ) && this.buildPiece(coordinate) }
+        { ( coordinate.y < 2 || coordinate.y > 5 ) && this.buildPiece(coordinate) }
       </Square>
     )
   }
 
   buildPiece(coordinate) {
 
-    const team = coordinate[1] < 2 ? 'white' : 'black';
+    const team = coordinate.y < 2 ? 'white' : 'black';
     const props = {
       team,
-      initialCoordinate: coordinate,
-      setSelectedPieceCoordinate: this.setSelectedPieceCoordinate.bind(this),
-      addPieceToBoard: this.addPieceToBoard.bind(this)
+      initialCoordinate: coordinate
     }
 
-    switch(coordinate[1]) {
-      case 0: return this.getPiecesInOrder()[coordinate[0]](props)
-      case 1: return this.getPiecesInOrder()[coordinate[0] + 8](props)
-      case 6: return this.getPiecesInOrder(true).reverse()[coordinate[0]](props)
-      case 7: return this.getPiecesInOrder(true).reverse()[coordinate[0] + 8](props)
+    switch(coordinate.y) {
+      case 0: return this.getPiecesInOrder()[coordinate.x](props)
+      case 1: return this.getPiecesInOrder()[coordinate.x + 8](props)
+      case 6: return this.getPiecesInOrder(true).reverse()[coordinate.x](props)
+      case 7: return this.getPiecesInOrder(true).reverse()[coordinate.x + 8](props)
       default: return null;
     }
   }
-
-  addPieceToBoard(piece) {
-    const pieces = this.state.pieces;
-    pieces.push(piece)
-    this.setState({ pieces })
-  }
-
-  setSelectedPieceCoordinate(coordinate) {
-    this.setState({ selectedPieceCoordinate: coordinate})
-    console.log('board state: ', this.state, coordinate)
-  }
 }
 
-// const mapStateToProps = (state) => ({
-//   board: state.board,
-// });
+const mapStateToProps = (state) => ({
+  board: state.board,
+});
 
-// const mapDispatchToProps = dispatch => bindActionCreators({
-//   setSelectedPiece
-// }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({
+  setSelectedPiece, addPieceToBoard, setAllowedToMove
+}, dispatch)
 
-// // eslint-disable-next-line react-redux/connect-prefer-named-arguments
-// export default connect(mapStateToProps, mapDispatchToProps)(Board)
+// eslint-disable-next-line react-redux/connect-prefer-named-arguments
+export default connect(null, mapDispatchToProps)(Board)

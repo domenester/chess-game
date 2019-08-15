@@ -1,14 +1,17 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
-import { connect as reduxConnect } from 'react-redux'
+import { connect } from 'react-redux'
 import { setCoordinate, setInitialX, setName } from './pieceActions'
-import { setSelectedPiece } from '../../board/boardActions'
+import { setSelectedPiece, addPieceToBoard } from '../../board/boardActions'
 import './piece.scss'
 
 export class Piece extends Component {
 
+  setSelectedPiece;
+
   constructor(props) {
     super(props);
+    this.setSelectedPiece = props.setSelectedPiece
   }
   
   componentDidMount() {
@@ -21,12 +24,14 @@ export class Piece extends Component {
       square,
       range: Math.floor(square / 3),
       x: 0,
-      y: 0
+      y: 0,
+      timesMoved: 0,
+      direction: this.props.team === 'white' ? 1 : -1
     });
   }
 
   onClick() {
-    this.props.setSelectedPieceCoordinate(this.state.coordinate)
+    // this.props.setSelectedPieceCoordinate(this.state.coordinate)
   }
 
   build(pieceName) {
@@ -38,6 +43,14 @@ export class Piece extends Component {
     )
   }
 
+  onStartDraggin(name) {
+    this.setSelectedPiece({
+      squareCoordinate: this.props.squareCoordinate,
+      name,
+      team: this.props.team
+    })
+  }
+
   getPieceRef() {
     return this.state.pieceRef;
   }
@@ -45,8 +58,6 @@ export class Piece extends Component {
   handleRef(ref) {
     if (!this.state.pieceRef && ref) {
       this.setState({pieceRef: ref});
-      console.log('getBoundingClientRect: ', ref.getBoundingClientRect())
-      this.props.addPieceToBoard({ ref })
     }
   }
 
@@ -118,7 +129,7 @@ export class Piece extends Component {
       else roundedX = x - modX
     }
 
-    return [roundedX, roundedY]
+    return { x: roundedX, y: roundedY };
   }
 
   onStopDragging(mouseEvent, data) {
@@ -130,28 +141,12 @@ export class Piece extends Component {
   }
 }
 
-// export const componentDidMount = (
-//   team, setInitialX, setCoordinate, initialY
-// ) => {
-//   const initialX = team === 'black' ? 0 : 8
-//   setInitialX(initialX)
-//   setCoordinate([ initialX, initialY ])
-// }
-
 // const mapStateToProps = (state) => ({
-//   piece: state.piece,
+//   board: state.board,
 // });
 
 // const mapDispatchToProps = dispatch => bindActionCreators({
-//   setCoordinate,
-//   setInitialX,
-//   setName,
-//   setSelectedPiece
+//   setSelectedPiece, addPieceToBoard
 // }, dispatch)
 
-// export function connect(Component) {
-//   return reduxConnect(mapStateToProps, mapDispatchToProps)(Component);
-// }
-
-// // eslint-disable-next-line react-redux/connect-prefer-named-arguments
-// export default connect(Piece)
+// export default connect(mapStateToProps, mapDispatchToProps)(Piece);
