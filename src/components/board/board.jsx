@@ -13,7 +13,10 @@ import './board.scss'
 
 export default class Board extends Component {
 
-  boardMatrix = [7][7];
+  constructor() {
+    super();
+    this.state = { pieces: [] };
+  }
 
   getPiecesInOrder(reverse) {
 
@@ -90,7 +93,8 @@ export default class Board extends Component {
     const props = {
       team,
       initialCoordinate: coordinate,
-      setSelectedPieceCoordinate: this.setSelectedPieceCoordinate.bind(this)
+      setSelectedPieceCoordinate: this.setSelectedPieceCoordinate.bind(this),
+      addPieceToBoard: this.addPieceToBoard.bind(this)
     }
 
     switch(coordinate[1]) {
@@ -102,37 +106,11 @@ export default class Board extends Component {
     }
   }
 
-  // buildNoblePiece(index) {
-  //   let pieceIndex;
-  //   let team = 'black';
-  //   if (index < 8) {
-  //     pieceIndex = index;
-  //   }
-  //   if (index >= 56) {
-  //     pieceIndex = index - 56;
-  //     team = 'white';
-  //   }
-  //   return this.nobleLine[pieceIndex]({
-  //     team, initialY: pieceIndex
-  //   })
-  // }
-
-  // buildPawnPiece(index) {
-  //   let pieceIndex;
-  //   let team = 'black';
-  //   if (index < 8) {
-  //     pieceIndex = index;
-  //   }
-  //   if (index >= 56) {
-  //     pieceIndex = index - 56;
-  //     team = 'white';
-  //   }
-  //   return <Pawn
-  //     team={team}
-  //     initialY={index}
-  //     setSelectedPieceCoordinate={this.setSelectedPieceCoordinate.bind(this)}
-  //   />
-  // }
+  addPieceToBoard(piece) {
+    const pieces = this.state.pieces;
+    pieces.push(piece)
+    this.setState({ pieces })
+  }
 
   setSelectedPieceCoordinate(coordinate) {
     this.setState({ selectedPieceCoordinate: coordinate})

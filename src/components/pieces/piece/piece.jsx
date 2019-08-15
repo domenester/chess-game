@@ -13,13 +13,13 @@ export class Piece extends Component {
   
   componentDidMount() {
     const initialCoordinate = this.props.initialCoordinate;
-    const square = 62;
+    const square = 62.5;
     this.setState({
       initialCoordinate,
       coordinate: initialCoordinate,
       team: this.props.team,
       square,
-      range: square / 4,
+      range: Math.floor(square / 3),
       x: 0,
       y: 0
     });
@@ -32,10 +32,22 @@ export class Piece extends Component {
   build(pieceName) {
     const team = this.state.team || '';
     return (
-      <div className="piece" onClick={this.onClick.bind(this)}>
+      <div ref={(ref) => this.handleRef(ref)} className="piece" onClick={this.onClick.bind(this)}>
         <div className={`piece-${team} mdi mdi-chess-${pieceName} text-center`}></div>
       </div>
     )
+  }
+
+  getPieceRef() {
+    return this.state.pieceRef;
+  }
+
+  handleRef(ref) {
+    if (!this.state.pieceRef && ref) {
+      this.setState({pieceRef: ref});
+      console.log('getBoundingClientRect: ', ref.getBoundingClientRect())
+      this.props.addPieceToBoard({ ref })
+    }
   }
 
   inRange(value) {
@@ -74,6 +86,39 @@ export class Piece extends Component {
     }
 
     return xIsValid && yIsValid
+  }
+
+  getRoundedCoordinate(x, y) {
+    const square = this.state.square;
+    const range = this.state.range;
+
+    let modY = y % square;
+    if (modY < 0) modY = modY * -1;
+    let modX = x % square;
+    if (modX < 0) modX = modX * -1;
+
+    let roundedY;
+    let roundedX;
+
+    if (y%square === 0) roundedY = y;
+    else if (modY > range && modY < square) {
+      if (y < 0) roundedY = y - (square - modY)
+      else roundedY = y + (square - modY)
+    } else  if (modY < range) {
+      if (y < 0) roundedY = y + modY
+      else roundedY = y - modY
+    }
+
+    if (x%square === 0) roundedX = x;
+    else if (modX > range && modX < square) {
+      if (x < 0) roundedX = x - (square - modX)
+      else roundedX = x + (square - modX)
+    } else  if (modX < range) {
+      if (x < 0) roundedX = x + modX
+      else roundedX = x - modX
+    }
+
+    return [roundedX, roundedY]
   }
 
   onStopDragging(mouseEvent, data) {

@@ -15,7 +15,7 @@ export default class Pawn extends Piece {
       <Draggable
         ref={(ref) => !this.state.draggablePiece && this.setState({draggablePiece: ref})}
         position={{ x: this.state.x, y: this.state.y}}
-        onStart={this.onStartDrag}
+        onStart={this.onStartDrag.bind(this)}
         onStop={this.onStopDragging.bind(this)}
       >
         <div className="handle">
@@ -26,16 +26,17 @@ export default class Pawn extends Piece {
   }
 
   onStartDrag(param1, param2) {
-    console.log('start: ', param1, param2);
+    console.log('start: ', param1.clientX, param1.clientY, this.getPieceRef());
   }
 
   onStopDragging(mouseEvent, data) {
-
+    console.log(mouseEvent, data)
     if (!super.onStopDragging(mouseEvent, data)) return;
-
+    const roundedCoordinate = this.getRoundedCoordinate(data.x, data.y);
     this.setState({
-      x: data.x, y: data.y
+      x: roundedCoordinate[0], y: roundedCoordinate[1]
     })
+    return;
   }
 }
 
