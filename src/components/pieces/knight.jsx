@@ -3,7 +3,7 @@ import Draggable from 'react-draggable'
 import { Piece } from './piece/piece'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { handlePieceInCoordinate } from '../board/boardActions'
+import { handlePieceInCoordinate, changeTurn } from '../board/boardActions'
 
 class Knight extends Piece {
 
@@ -19,6 +19,7 @@ class Knight extends Piece {
         position={{ x: this.state.x, y: this.state.y}}
         onStart={this.onStartDraggin.bind(this)}
         onStop={this.onStopDragging.bind(this)}
+        disabled={this.props.board.turn !== this.props.team}
       >
         <div className="handle">
           {this.build( name )}
@@ -32,39 +33,36 @@ class Knight extends Piece {
   }
 
   onStopDragging(mouseEvent, data) {
-    return super.onStopDragging(
+    const valid = super.onStopDragging(
       mouseEvent,
       data,
       this.validMove.bind(this),
       this.props.board.pieceInCoordinate
     );
+    if (!valid) this.shakePiece();
+    return valid;
   }
 
   validMove(newCoordinate) {
     const lastX = this.state.lastMoveCoordinate.x;
     const lastY = this.state.lastMoveCoordinate.y;
-    const xToMove = this.xToMove(newCoordinate.x);
-    const yToMove = this.yToMove(newCoordinate.y);
     const square = this.state.square;
     const squareDirected = this.state.square * this.state.direction;
 
-    // When goes up and turn right
-    if ( (lastY + squareDirected*3 ) === newCoordinate.y && lastX === newCoordinate.x + square) {
-      return true;
-    }
+    const goesUp = (lastY + squareDirected*2 ) === newCoordinate.y;
+    const goesRight = (lastX + squareDirected*2 ) === newCoordinate.x;
+    const goesDown = (lastY - squareDirected*2 ) === newCoordinate.y;
+    const goesLeft = (lastX - squareDirected*2 ) === newCoordinate.x;
 
-    // When goes diagonal down left
-    if (lastY < newCoordinate.y && lastX > newCoordinate.x) {
-      return true;
-    }
+    const turnRight = lastX === newCoordinate.x - square;
+    const turnLeft = lastX === newCoordinate.x + square;
+    const turnUp = lastY === newCoordinate.y + square;
+    const turnDown = lastY === newCoordinate.y - square;
 
-    // When goes diagonal up right
-    if (lastY > newCoordinate.y && lastX < newCoordinate.x) {
-      return true;
-    }
-
-    // When goes diagonal up left
-    if (lastY > newCoordinate.y && lastX > newCoordinate.x) {
+    if (
+      (goesUp && turnRight) || (goesUp && turnLeft) || (goesRight && turnUp) || (goesRight && turnDown)
+      || (goesDown && turnRight) || (goesDown && turnLeft) || (goesLeft && turnUp) || (goesLeft && turnDown)
+    ) {
       return true;
     }
 
@@ -77,7 +75,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  handlePieceInCoordinate
+  handlePieceInCoordinate, changeTurn
 }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Knight);

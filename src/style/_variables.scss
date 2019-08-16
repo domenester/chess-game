@@ -6,3 +6,7 @@ $century-gothic-font: "CenturyGothic";
 //Board
 $board-size: 500;
 $square-size: $board-size / 8;
+
+:export {
+  boardSize: $board-size;
+}

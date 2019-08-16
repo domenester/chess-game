@@ -3,7 +3,7 @@ import { Piece } from './piece/piece'
 import Draggable from 'react-draggable'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { handlePieceInCoordinate } from '../board/boardActions'
+import { handlePieceInCoordinate, changeTurn } from '../board/boardActions'
 
 class Pawn extends Piece {
 
@@ -19,6 +19,7 @@ class Pawn extends Piece {
         position={{ x: this.state.x, y: this.state.y}}
         onStart={this.onStartDraggin.bind(this)}
         onStop={this.onStopDragging.bind(this)}
+        disabled={this.props.board.turn !== this.props.team}
       >
         <div className="handle">
           {this.build( name )}
@@ -32,12 +33,14 @@ class Pawn extends Piece {
   }
 
   onStopDragging(mouseEvent, data) {
-    return super.onStopDragging(
+    const valid = super.onStopDragging(
       mouseEvent,
       data,
       this.validMove.bind(this),
       this.props.board.pieceInCoordinate
     );
+    if (!valid) this.shakePiece();
+    return valid;
   }
 
   validMove(newCoordinate) {
@@ -83,7 +86,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  handlePieceInCoordinate
+  handlePieceInCoordinate, changeTurn
 }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Pawn);

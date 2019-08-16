@@ -1,5 +1,6 @@
 const INITIAL_STATE = {
-  pieceInCoordinate: {}
+  pieceInCoordinate: {},
+  turn: 'white'
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -12,6 +13,8 @@ export default (state = INITIAL_STATE, action) => {
           ...action.payload
         }
       }
+    case "CHANGE_TURN":
+      return { ...state, turn: (state.turn === 'white' ? 'black' : 'white') }
     default:
       return state
   }

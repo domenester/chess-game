@@ -3,7 +3,8 @@ import Draggable from 'react-draggable'
 import { Piece } from './piece/piece'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { handlePieceInCoordinate } from '../board/boardActions'
+import { handlePieceInCoordinate, changeTurn } from '../board/boardActions'
+import DiagonalRules from '../utils/rules/diagonal.rules'
 
 class Bishop extends Piece {
 
@@ -19,6 +20,7 @@ class Bishop extends Piece {
         position={{ x: this.state.x, y: this.state.y}}
         onStart={this.onStartDraggin.bind(this)}
         onStop={this.onStopDragging.bind(this)}
+        disabled={this.props.board.turn !== this.props.team}
       >
         <div className="handle">
           {this.build( name )}
@@ -32,42 +34,27 @@ class Bishop extends Piece {
   }
 
   onStopDragging(mouseEvent, data) {
-    return super.onStopDragging(
+    const valid = super.onStopDragging(
       mouseEvent,
       data,
       this.validMove.bind(this),
       this.props.board.pieceInCoordinate
     );
+    if (!valid) this.shakePiece();
+    return valid;
   }
 
   validMove(newCoordinate) {
     const lastX = this.state.lastMoveCoordinate.x;
     const lastY = this.state.lastMoveCoordinate.y;
-    const xToMove = this.xToMove(newCoordinate.x);
-    const yToMove = this.yToMove(newCoordinate.y);
-    const squareDirected = this.state.square * this.state.direction;
 
-    // When goes diagonal down right
-    if (lastY < newCoordinate.y && lastX < newCoordinate.x) {
-      return true;
-    }
-
-    // When goes diagonal down left
-    if (lastY < newCoordinate.y && lastX > newCoordinate.x) {
-      return true;
-    }
-
-    // When goes diagonal up right
-    if (lastY > newCoordinate.y && lastX < newCoordinate.x) {
-      return true;
-    }
-
-    // When goes diagonal up left
-    if (lastY > newCoordinate.y && lastX > newCoordinate.x) {
-      return true;
-    }
-
-    return false;
+    return DiagonalRules(
+      this.props.board.pieceInCoordinate,
+      this.xToMove,
+      this.state.square
+    ).validate(
+      lastY, newCoordinate.y, lastX, newCoordinate.x, this.state.coordinate
+    )
   }
 }
 
@@ -76,7 +63,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  handlePieceInCoordinate
+  handlePieceInCoordinate, changeTurn
 }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Bishop);

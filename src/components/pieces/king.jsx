@@ -3,7 +3,7 @@ import Draggable from 'react-draggable'
 import { Piece } from './piece/piece'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { handlePieceInCoordinate } from '../board/boardActions'
+import { handlePieceInCoordinate, changeTurn } from '../board/boardActions'
 
 class King extends Piece {
 
@@ -19,6 +19,7 @@ class King extends Piece {
         position={{ x: this.state.x, y: this.state.y}}
         onStart={this.onStartDraggin.bind(this)}
         onStop={this.onStopDragging.bind(this)}
+        disabled={this.props.board.turn !== this.props.team}
       >
         <div className="handle">
           {this.build( name )}
@@ -32,15 +33,26 @@ class King extends Piece {
   }
 
   onStopDragging(mouseEvent, data) {
-    return super.onStopDragging(
+    const valid = super.onStopDragging(
       mouseEvent,
       data,
       this.validMove.bind(this),
       this.props.board.pieceInCoordinate
     );
+    if (!valid) this.shakePiece();
+    return valid;
   }
 
-  validMove(newCoordinate) { return true; }
+  validMove(newCoordinate) {
+    const lastX = this.state.lastMoveCoordinate.x;
+    const lastY = this.state.lastMoveCoordinate.y;
+
+    const distanceY = (newCoordinate.y - lastY) / this.state.square;
+    const distanceX = (newCoordinate.x - lastX) / this.state.square;
+
+    if (distanceX > 1 || distanceY > 1 || distanceX < -1 || distanceY < -1) return;
+    return true;
+  }
 }
 
 const mapStateToProps = (state) => ({
@@ -48,7 +60,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  handlePieceInCoordinate
+  handlePieceInCoordinate, changeTurn
 }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(King);

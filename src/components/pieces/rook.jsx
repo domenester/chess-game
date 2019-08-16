@@ -3,7 +3,8 @@ import { Piece } from './piece/piece'
 import Draggable from 'react-draggable'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { handlePieceInCoordinate } from '../board/boardActions'
+import { handlePieceInCoordinate, changeTurn } from '../board/boardActions'
+import PerpendicularRules from '../utils/rules/perpendicular.rules'
 
 class Rook extends Piece {
 
@@ -19,6 +20,7 @@ class Rook extends Piece {
         position={{ x: this.state.x, y: this.state.y}}
         onStart={this.onStartDraggin.bind(this)}
         onStop={this.onStopDragging.bind(this)}
+        disabled={this.props.board.turn !== this.props.team}
       >
         <div className="handle">
           {this.build( name )}
@@ -32,54 +34,28 @@ class Rook extends Piece {
   }
 
   onStopDragging(mouseEvent, data) {
-    return super.onStopDragging(
+    const valid = super.onStopDragging(
       mouseEvent,
       data,
       this.validMove.bind(this),
       this.props.board.pieceInCoordinate
     );
+    if (!valid) this.shakePiece();
+    return valid;
   }
 
   validMove(newCoordinate) {
     const lastX = this.state.lastMoveCoordinate.x;
     const lastY = this.state.lastMoveCoordinate.y;
-    const xToMove = this.xToMove(newCoordinate.x);
-    const yToMove = this.yToMove(newCoordinate.y);
-    const squareDirected = this.state.square * this.state.direction;
 
-    // When goes vertical up
-    if (lastY < newCoordinate.y && lastX === newCoordinate.x) {
-      return true;
-    }
-
-    // When goes vertical down
-    if (lastY > newCoordinate.y && lastX === newCoordinate.x) {
-      return true;
-    }
-
-    // When goes horizontal left
-    if (lastX < newCoordinate.x && lastY === newCoordinate.y) {
-      return true;
-    }
-
-    // When goes horizontal right
-    if (lastX < newCoordinate.x && lastY === newCoordinate.y) {
-      return true;
-    }
-
-    return false;
+    return PerpendicularRules(
+      this.xToMove,
+      this.props.board.pieceInCoordinate,
+      this.state.square
+    ).validate(
+      lastY, newCoordinate.y, lastX, newCoordinate.x, this.state.coordinate
+    )
   }
-
-  hasFriendPieceInTheWay(x, y) {
-    const lastX = this.state.lastMoveCoordinate.x;
-    const lastY = this.state.lastMoveCoordinate.y;
-  }
-
-  hasEnemyInCoordenadeMoved(x, y) {
-    const piece = this.props.board.pieceInCoordinate[`${x}${y}`];
-    return !!piece && piece.team !== this.props.team
-  }
-
 }
 
 const mapStateToProps = (state) => ({
@@ -87,7 +63,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  handlePieceInCoordinate
+  handlePieceInCoordinate, changeTurn
 }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Rook);

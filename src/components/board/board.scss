@@ -16,10 +16,13 @@
   height: $square-size + px;
 }
 
-.background-white {
-  background-color: white;
+$square-background-image: url("../../assets/images/wood-pattern.png");
+
+.background-light {
+  background-color: #c49300;
+  background-image: $square-background-image;
 }
 
-.background-black {
+.background-dark {
   background-color: black;
 }

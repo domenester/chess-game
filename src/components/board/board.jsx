@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { handlePieceInCoordinate } from './boardActions'
+import { handlePieceInCoordinate, changeTurn } from './boardActions'
 import King from '../pieces/king'
 import Rook from '../pieces/rook'
 import Knight from '../pieces/knight'
@@ -15,7 +15,7 @@ class Board extends Component {
 
   constructor() {
     super();
-    this.state = { pieces: [] };
+    this.state = { pieces: [], gameStarted: false, turn: 'white' };
   }
 
   getPiecesInOrder(reverse) {
@@ -49,7 +49,6 @@ class Board extends Component {
   }
 
   render() {
-    console.log('Board: ', this.state, this.props)
     return (
       <div className="board row m-auto">
         { this.buildBoard() }
@@ -69,8 +68,8 @@ class Board extends Component {
   }
 
   blackOrWhiteBackGround(x, y) {
-    let selectedColor = x % 2 === 0 ? 'background-white' : 'background-black'
-    let inverseColor = x % 2 === 0 ? 'background-black' : 'background-white'
+    let selectedColor = x % 2 === 0 ? 'background-light' : 'background-dark'
+    let inverseColor = x % 2 === 0 ? 'background-dark' : 'background-light'
     selectedColor = y % 2 === 0 ? selectedColor : inverseColor
     return selectedColor;
   }
@@ -107,7 +106,7 @@ class Board extends Component {
 }
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  handlePieceInCoordinate
+  handlePieceInCoordinate, changeTurn
 }, dispatch)
 
 export default connect(null, mapDispatchToProps)(Board)

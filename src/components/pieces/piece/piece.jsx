@@ -1,25 +1,28 @@
 import React, { Component } from 'react'
 import { getCoordinateString } from '../../utils/coordinate'
+import frontVars from '../../../style/_variables.scss'
 import './piece.scss'
 
 export class Piece extends Component {
 
   setSelectedPiece;
   handlePieceInCoordinate;
+  changeTurn;
 
   constructor(props) {
     super(props);
     this.setSelectedPiece = props.setSelectedPiece;
     this.handlePieceInCoordinate = props.handlePieceInCoordinate;
+    this.changeTurn = props.changeTurn;
   }
   
   componentDidMount() {
     const initialCoordinate = this.props.initialCoordinate;
-    const square = 62.5;
+    const boardSize = +frontVars.boardSize;
+    const square = boardSize / 8;
     this.setState({
       initialCoordinate,
       coordinate: initialCoordinate,
-      team: this.props.team,
       square,
       range: Math.floor(square / 3),
       x: 0,
@@ -56,12 +59,12 @@ export class Piece extends Component {
     return (value <= range && value >= range*-1)
   }
 
-  xToMove(x) {
+  xToMove = (x) => {
     const xToMove = x === 0 ? 0 : (x / this.state.square)
     return this.state.initialCoordinate.x + xToMove;
   }
 
-  yToMove(y) {
+  yToMove = (y) => {
     const yToMove = y === 0 ? 0 : (y / this.state.square)
     return this.state.initialCoordinate.y + yToMove;
   }
@@ -165,6 +168,26 @@ export class Piece extends Component {
     if (!validMove(roundedCoordinate)) return;
     if (!this.handlePieceInCoordinateMoved( roundedCoordinate, pieceInCoordinate )) return;
     this.setState({ ...roundedCoordinate, timesMoved: this.state.timesMoved + 1 })
+    this.changeTurn();
+    return true;
   }
 
+  shakePiece() {
+    let intensity = 8;
+    let count = 0;
+    let yStartedWith = this.state.y;
+    let shaker = setInterval(() => {
+      if (count%2 === 0) {
+        this.setState({y: this.state.y + intensity})
+      } else {
+        this.setState({y: this.state.y - intensity})
+        intensity = intensity / 2;
+      }
+      count++;
+      if ( intensity < 1 ) {
+        this.setState({y: yStartedWith})
+        clearInterval (shaker);
+      }
+    }, 30);
+  }
 }
