@@ -3,7 +3,7 @@ import { Piece } from './piece/piece'
 import Draggable from 'react-draggable'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { setSelectedPiece, setBoardPieces } from '../board/boardActions'
+import { handlePieceInCoordinate } from '../board/boardActions'
 
 class Pawn extends Piece {
 
@@ -12,20 +12,10 @@ class Pawn extends Piece {
     this.state = { name: 'pawn' };
   }
 
-  componentDidMount() {
-    super.componentDidMount()
-    this.props.setBoardPieces({
-      squareCoordinate: this.props.squareCoordinate,
-      name,
-      team: this.props.team
-    })
-  }
-
   render() {
     const name = this.state.name || '';
     return (
       <Draggable
-        ref={(ref) => !this.state.draggablePiece && this.setState({draggablePiece: ref})}
         position={{ x: this.state.x, y: this.state.y}}
         onStart={this.onStartDraggin.bind(this)}
         onStop={this.onStopDragging.bind(this)}
@@ -38,39 +28,52 @@ class Pawn extends Piece {
   }
 
   onStartDraggin(param1, param2) {
-    console.log('this.props.board: ', this.props);
-    super.onStartDraggin(this.state.name)
-    this.setState({
-      lastMoveCoordinate: { x: param2.x, y: param2.y }
-    })
+    this.setState({ lastMoveCoordinate: { x: param2.x, y: param2.y } })
   }
 
   onStopDragging(mouseEvent, data) {
-    if (!super.onStopDragging(mouseEvent, data)) return;
-    const roundedCoordinate = this.getRoundedCoordinate(data.x, data.y);
-    if (!this.allowedToMove(roundedCoordinate)) return;
-    if (!this.props.board.allowedToMove) return;
-    //if (this.hasPieceInSquareMoved()) return;
-    this.setState({ ...roundedCoordinate, timesMoved: this.state.timesMoved + 1 })
+    return super.onStopDragging(
+      mouseEvent,
+      data,
+      this.validMove.bind(this),
+      this.props.board.pieceInCoordinate
+    );
   }
 
-  allowedToMove(newCoordinate) {
+  validMove(newCoordinate) {
     const lastX = this.state.lastMoveCoordinate.x;
     const lastY = this.state.lastMoveCoordinate.y;
+    const xToMove = this.xToMove(newCoordinate.x);
+    const yToMove = this.yToMove(newCoordinate.y);
+    const squareDirected = this.state.square * this.state.direction;
+
+    // When goes foward
     if (lastX === newCoordinate.x) {
-      const squareDirected = this.state.square * this.state.direction;
       if (this.state.timesMoved === 0) {
-        return newCoordinate.y === squareDirected || newCoordinate.y === squareDirected*2
+        if ( !(newCoordinate.y === squareDirected || newCoordinate.y === squareDirected*2) ) { return }
+        return !this.hasPieceInCoordenadeMoved(xToMove, yToMove)
       } else {
-        return newCoordinate.y === squareDirected + lastY
+        if ( !(newCoordinate.y === squareDirected + lastY) ) { return }
+        return !this.hasPieceInCoordenadeMoved(xToMove, yToMove)
       }
+    }
+
+    // When goes diagonal foward
+    if (
+      (newCoordinate.x === lastX + squareDirected || newCoordinate.x === lastX - squareDirected)
+      && newCoordinate.y === lastY + squareDirected
+    ) {
+      return this.hasPieceInCoordenadeMoved(xToMove, yToMove)
     }
   }
 
-  hasPieceInSquareMoved() {
-    return this.props.board.pieces.filter( p => 
-      p.squareCoordinate.x === this.props.squareCoordinate.x && p.squareCoordinate.y === this.props.squareCoordinate.y
-    ).length > 0
+  hasPieceInCoordenadeMoved(x, y) {
+    return !!this.props.board.pieceInCoordinate[`${x}${y}`]
+  }
+
+  hasEnemyInCoordenadeMoved(x, y) {
+    const piece = this.props.board.pieceInCoordinate[`${x}${y}`];
+    return !!piece && piece.team !== this.props.team
   }
 
 }
@@ -80,7 +83,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  setSelectedPiece, setBoardPieces
+  handlePieceInCoordinate
 }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Pawn);

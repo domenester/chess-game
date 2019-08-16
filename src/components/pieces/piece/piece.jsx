@@ -1,17 +1,16 @@
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { setCoordinate, setInitialX, setName } from './pieceActions'
-import { setSelectedPiece, addPieceToBoard } from '../../board/boardActions'
+import { getCoordinateString } from '../../utils/coordinate'
 import './piece.scss'
 
 export class Piece extends Component {
 
   setSelectedPiece;
+  handlePieceInCoordinate;
 
   constructor(props) {
     super(props);
-    this.setSelectedPiece = props.setSelectedPiece
+    this.setSelectedPiece = props.setSelectedPiece;
+    this.handlePieceInCoordinate = props.handlePieceInCoordinate;
   }
   
   componentDidMount() {
@@ -26,44 +25,69 @@ export class Piece extends Component {
       x: 0,
       y: 0,
       timesMoved: 0,
-      direction: this.props.team === 'white' ? 1 : -1
+      direction: this.props.team === 'white' ? 1 : -1,
+      hidden: false
     });
+    this.handlePieceInCoordinate({
+      [ getCoordinateString( this.props.initialCoordinate ) ]: this.pieceInCoordinateNormalized()
+    })
   }
 
-  onClick() {
-    // this.props.setSelectedPieceCoordinate(this.state.coordinate)
+  pieceInCoordinateNormalized() {
+    return {
+      team: this.props.team,
+      name: this.state.name,
+      initialCoordinate: this.props.initialCoordinate,
+      hidePiece: () => this.setState({ hidden: true })
+    }
   }
 
   build(pieceName) {
-    const team = this.state.team || '';
+    const team = this.props.team || '';
     return (
-      <div ref={(ref) => this.handleRef(ref)} className="piece" onClick={this.onClick.bind(this)}>
+      <div className="piece" hidden={this.state.hidden}>
         <div className={`piece-${team} mdi mdi-chess-${pieceName} text-center`}></div>
       </div>
     )
   }
 
-  onStartDraggin(name) {
-    this.setSelectedPiece({
-      squareCoordinate: this.props.squareCoordinate,
-      name,
-      team: this.props.team
-    })
-  }
-
-  getPieceRef() {
-    return this.state.pieceRef;
-  }
-
-  handleRef(ref) {
-    if (!this.state.pieceRef && ref) {
-      this.setState({pieceRef: ref});
-    }
-  }
-
   inRange(value) {
     const range = this.state.range;
     return (value <= range && value >= range*-1)
+  }
+
+  xToMove(x) {
+    const xToMove = x === 0 ? 0 : (x / this.state.square)
+    return this.state.initialCoordinate.x + xToMove;
+  }
+
+  yToMove(y) {
+    const yToMove = y === 0 ? 0 : (y / this.state.square)
+    return this.state.initialCoordinate.y + yToMove;
+  }
+
+  handlePieceInCoordinateMoved(coordinate, boardPieceInCoordinate) {
+    const xToMove = this.xToMove(coordinate.x);
+    const yToMove = this.yToMove(coordinate.y);
+
+    const coordinateAsHash = `${xToMove}${yToMove}`
+
+    const pieceInCoordinate = boardPieceInCoordinate[coordinateAsHash]
+    
+    if ( pieceInCoordinate && pieceInCoordinate.team === this.props.team ) return false;
+
+    if ( pieceInCoordinate ) {
+      boardPieceInCoordinate[coordinateAsHash].hidePiece()
+    }
+
+    this.handlePieceInCoordinate({
+      [coordinateAsHash]: this.pieceInCoordinateNormalized(),
+      [`${this.state.coordinate.x}${this.state.coordinate.y}`]: undefined
+    })
+
+    this.setState({ coordinate: { x: xToMove, y: yToMove } })
+
+    return true;
   }
 
   stoppedDragginInValidRange(x, y) {
@@ -132,21 +156,15 @@ export class Piece extends Component {
     return { x: roundedX, y: roundedY };
   }
 
-  onStopDragging(mouseEvent, data) {
-    let y = data.y;
-    if (y < 0) y = y * -1;
-    let x = data.x;
-    if (x < 0) x = x * -1;
-    return this.stoppedDragginInValidRange(x, y);
+  onStopDragging(mouseEvent, data, validMove, pieceInCoordinate) {
+    let y = data.y < 0 ? data.y : data.y * -1;
+    let x = data.x < 0 ? data.x : data.x * -1;
+
+    if (!this.stoppedDragginInValidRange(x, y)) return;
+    const roundedCoordinate = this.getRoundedCoordinate(data.x, data.y);
+    if (!validMove(roundedCoordinate)) return;
+    if (!this.handlePieceInCoordinateMoved( roundedCoordinate, pieceInCoordinate )) return;
+    this.setState({ ...roundedCoordinate, timesMoved: this.state.timesMoved + 1 })
   }
+
 }
-
-// const mapStateToProps = (state) => ({
-//   board: state.board,
-// });
-
-// const mapDispatchToProps = dispatch => bindActionCreators({
-//   setSelectedPiece, addPieceToBoard
-// }, dispatch)
-
-// export default connect(mapStateToProps, mapDispatchToProps)(Piece);

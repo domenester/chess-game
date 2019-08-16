@@ -4,14 +4,12 @@ import Home from './routes/home/content' // eslint-disable-line no-unused-vars
 import { AppConfig } from '../config'
 import { BrowserRouter, Route } from 'react-router-dom'
 import { combineReducers, createStore } from 'redux'
-import pieceReducer from './pieces/piece/pieceReducers'
 import boardReducer from './board/boardReducers'
 import 'bootstrap'
 
 document.title = AppConfig.title;
 
 const reducers = combineReducers({
-  piece: pieceReducer,
   board: boardReducer
 });
 

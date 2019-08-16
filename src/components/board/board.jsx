@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { setSelectedPiece, addPieceToBoard, setAllowedToMove } from './boardActions'
+import { handlePieceInCoordinate } from './boardActions'
 import King from '../pieces/king'
 import Rook from '../pieces/rook'
 import Knight from '../pieces/knight'
@@ -106,13 +106,8 @@ class Board extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  board: state.board,
-});
-
 const mapDispatchToProps = dispatch => bindActionCreators({
-  setSelectedPiece, addPieceToBoard, setAllowedToMove
+  handlePieceInCoordinate
 }, dispatch)
 
-// eslint-disable-next-line react-redux/connect-prefer-named-arguments
 export default connect(null, mapDispatchToProps)(Board)

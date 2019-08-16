@@ -1,8 +1,11 @@
 import React from 'react'
 import Draggable from 'react-draggable'
 import { Piece } from './piece/piece'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { handlePieceInCoordinate } from '../board/boardActions'
 
-export default class King extends Piece {
+class King extends Piece {
 
   constructor(props) {
     super(props);
@@ -13,7 +16,9 @@ export default class King extends Piece {
     const name = this.state.name || '';
     return (
       <Draggable
-        onDrag={this.handleDrag}
+        position={{ x: this.state.x, y: this.state.y}}
+        onStart={this.onStartDraggin.bind(this)}
+        onStop={this.onStopDragging.bind(this)}
       >
         <div className="handle">
           {this.build( name )}
@@ -21,7 +26,29 @@ export default class King extends Piece {
       </Draggable>
     )
   }
+
+  onStartDraggin(param1, param2) {
+    this.setState({ lastMoveCoordinate: { x: param2.x, y: param2.y } })
+  }
+
+  onStopDragging(mouseEvent, data) {
+    return super.onStopDragging(
+      mouseEvent,
+      data,
+      this.validMove.bind(this),
+      this.props.board.pieceInCoordinate
+    );
+  }
+
+  validMove(newCoordinate) { return true; }
 }
 
-// eslint-disable-next-line react-redux/connect-prefer-named-arguments
-// export default connect(King);
+const mapStateToProps = (state) => ({
+  board: state.board,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  handlePieceInCoordinate
+}, dispatch)
+
+export default connect(mapStateToProps, mapDispatchToProps)(King);
