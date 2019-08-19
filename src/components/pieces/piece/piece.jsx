@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { getCoordinateString } from '../../utils/coordinate'
 import frontVars from '../../../style/_variables.scss'
+import PieceAnimation from './piece.animation'
 import './piece.scss'
 
 export class Piece extends Component {
@@ -8,18 +9,21 @@ export class Piece extends Component {
   setSelectedPiece;
   handlePieceInCoordinate;
   changeTurn;
+  pieceAnimation;
+  boardSize;
 
   constructor(props) {
     super(props);
     this.setSelectedPiece = props.setSelectedPiece;
     this.handlePieceInCoordinate = props.handlePieceInCoordinate;
     this.changeTurn = props.changeTurn;
+    this.pieceAnimation = PieceAnimation(this.setCoordinate.bind(this))
   }
   
   componentDidMount() {
     const initialCoordinate = this.props.initialCoordinate;
-    const boardSize = +frontVars.boardSize;
-    const square = boardSize / 8;
+    this.boardSize = +frontVars.boardSize;
+    const square = this.boardSize / 8;
     this.setState({
       initialCoordinate,
       coordinate: initialCoordinate,
@@ -166,13 +170,20 @@ export class Piece extends Component {
     return { x: roundedX, y: roundedY };
   }
 
+  coordinateInsideBoard(x, y) {
+    const boardCoordinateY = (y / this.state.square) + this.state.initialCoordinate.y;
+    const boardCoordinateX = (x / this.state.square) + this.state.initialCoordinate.x;
+    return boardCoordinateY >= 0 && boardCoordinateY < 8 && boardCoordinateX >= 0 && boardCoordinateX < 8;
+  }
+
   onStopDragging(mouseEvent, data, validMove, pieceInCoordinate) {
     let y = data.y < 0 ? data.y : data.y * -1;
     let x = data.x < 0 ? data.x : data.x * -1;
 
     if (!this.stoppedDragginInValidRange(x, y)) return;
     const roundedCoordinate = this.getRoundedCoordinate(data.x, data.y);
-    if (!validMove(roundedCoordinate)) return;
+    if (!validMove(roundedCoordinate) || !this.coordinateInsideBoard(
+      roundedCoordinate.x, roundedCoordinate.y)) return;
     if (!this.handlePieceInCoordinateMoved( roundedCoordinate, pieceInCoordinate )) return;
     this.setState({ ...roundedCoordinate, timesMoved: this.state.timesMoved + 1 })
     this.changeTurn();
@@ -180,25 +191,13 @@ export class Piece extends Component {
   }
 
   setCoordinate(coordinate) {
-    this.setState({ ...coordinate })
+    this.setState({
+      x: coordinate.x || this.state.x,
+      y: coordinate.y || this.state.y
+    })
   }
 
   shakePiece() {
-    let intensity = 8;
-    let count = 0;
-    let yStartedWith = this.state.y;
-    let shaker = setInterval(() => {
-      if (count%2 === 0) {
-        this.setState({y: this.state.y + intensity})
-      } else {
-        this.setState({y: this.state.y - intensity})
-        intensity = intensity / 2;
-      }
-      count++;
-      if ( intensity < 1 ) {
-        this.setState({y: yStartedWith})
-        clearInterval (shaker);
-      }
-    }, 30);
+    this.pieceAnimation.shakePiece(this.state.y)
   }
 }

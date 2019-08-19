@@ -9,7 +9,7 @@ class KingRules {
   validate(lastY, newY, lastX, newX, actualCoordinate, timesMoved) {
     const distanceY = (newY - lastY)/this.square;
     const distanceX = (newX - lastX) / this.square;
-    if (this.isCastlePosition(distanceX, actualCoordinate, timesMoved)) {
+    if (this.isCastlePosition(distanceX, actualCoordinate, timesMoved, newY)) {
       this.handleCastlePlay(actualCoordinate, distanceX);
       return true;
     }
@@ -17,8 +17,8 @@ class KingRules {
     return true;
   }
 
-  isCastlePosition(distanceX, actualCoordinate, timesMoved) {
-    if (timesMoved !== 0) return;
+  isCastlePosition(distanceX, actualCoordinate, timesMoved, newY) {
+    if (timesMoved !== 0 || actualCoordinate.y !== newY) return;
     switch (distanceX) {
       case 2: {
         return !this.hasPieceInCoordenadeMoved(actualCoordinate.x + 1, actualCoordinate.y)

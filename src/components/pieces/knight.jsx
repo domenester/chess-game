@@ -29,6 +29,7 @@ class Knight extends Piece {
   }
 
   onStartDraggin(param1, param2) {
+    console.log('param2: ', param2, param2.x, param2.y)
     this.setState({ lastMoveCoordinate: { x: param2.x, y: param2.y } })
   }
 
@@ -49,10 +50,10 @@ class Knight extends Piece {
     const square = this.state.square;
     const squareDirected = this.state.square * this.state.direction;
 
-    const goesUp = (lastY + squareDirected*2 ) === newCoordinate.y;
-    const goesRight = (lastX + squareDirected*2 ) === newCoordinate.x;
-    const goesDown = (lastY - squareDirected*2 ) === newCoordinate.y;
-    const goesLeft = (lastX - squareDirected*2 ) === newCoordinate.x;
+    const goesUp = (lastY - squareDirected*2 ) === newCoordinate.y;
+    const goesRight = (lastX + this.state.square*2 ) === newCoordinate.x;
+    const goesDown = (lastY + squareDirected*2 ) === newCoordinate.y;
+    const goesLeft = (lastX - this.state.square*2 ) === newCoordinate.x;
 
     const turnRight = lastX === newCoordinate.x - square;
     const turnLeft = lastX === newCoordinate.x + square;
