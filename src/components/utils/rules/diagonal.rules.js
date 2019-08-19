@@ -12,22 +12,22 @@ class DiagonalRules {
 
     // When goes diagonal down right
     if (lastY < newY && lastX < newX && distanceX === distanceY) {
-      return !this.hasPieceGoingDownRight(lastY, lastX, newY, actualCoordinate, distanceY);
+      return !this.hasPieceGoingDownRight(actualCoordinate, distanceY);
     }
 
     // When goes diagonal down left
     if (lastY < newY && lastX > newX && (distanceX*-1) === distanceY) {
-      return !this.hasPieceGoingDownLeft(lastY, lastX, newY, actualCoordinate, distanceY);
+      return !this.hasPieceGoingDownLeft(actualCoordinate, distanceY);
     }
 
     // When goes diagonal up right
     if (lastY > newY && lastX < newX && distanceX === (distanceY*-1)) {
-      return !this.hasPieceGoingUpRight(lastY, lastX, newY, actualCoordinate, distanceX);
+      return !this.hasPieceGoingUpRight(actualCoordinate, distanceX);
     }
 
     // When goes diagonal up left
     if (lastY > newY && lastX > newX && distanceX === distanceY) {
-      return !this.hasPieceGoingUpLeft(lastY, lastX, newY, actualCoordinate, (distanceX*-1));
+      return !this.hasPieceGoingUpLeft(actualCoordinate, (distanceX*-1));
     }
   }
 

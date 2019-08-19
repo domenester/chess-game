@@ -19,7 +19,7 @@ class Pawn extends Piece {
         position={{ x: this.state.x, y: this.state.y}}
         onStart={this.onStartDraggin.bind(this)}
         onStop={this.onStopDragging.bind(this)}
-        disabled={this.props.board.turn !== this.props.team}
+        disabled={!this.isTeamTurn(this.props.board.turn)}
       >
         <div className="handle">
           {this.build( name )}

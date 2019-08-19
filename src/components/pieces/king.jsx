@@ -4,6 +4,7 @@ import { Piece } from './piece/piece'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { handlePieceInCoordinate, changeTurn } from '../board/boardActions'
+import KingRules from '../utils/rules/king.rules'
 
 class King extends Piece {
 
@@ -19,7 +20,7 @@ class King extends Piece {
         position={{ x: this.state.x, y: this.state.y}}
         onStart={this.onStartDraggin.bind(this)}
         onStop={this.onStopDragging.bind(this)}
-        disabled={this.props.board.turn !== this.props.team}
+        disabled={!this.isTeamTurn(this.props.board.turn)}
       >
         <div className="handle">
           {this.build( name )}
@@ -47,11 +48,13 @@ class King extends Piece {
     const lastX = this.state.lastMoveCoordinate.x;
     const lastY = this.state.lastMoveCoordinate.y;
 
-    const distanceY = (newCoordinate.y - lastY) / this.state.square;
-    const distanceX = (newCoordinate.x - lastX) / this.state.square;
-
-    if (distanceX > 1 || distanceY > 1 || distanceX < -1 || distanceY < -1) return;
-    return true;
+    return KingRules(
+      this.props.board.pieceInCoordinate,
+      this.state.square,
+      this.props.handlePieceInCoordinate
+    ).validate(
+      lastY, newCoordinate.y, lastX, newCoordinate.x, this.state.coordinate, this.state.timesMoved
+    )
   }
 }
 

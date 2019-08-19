@@ -36,11 +36,14 @@ export class Piece extends Component {
     })
   }
 
-  pieceInCoordinateNormalized() {
+  pieceInCoordinateNormalized(timesMoved = 0) {
     return {
       team: this.props.team,
       name: this.state.name,
       initialCoordinate: this.props.initialCoordinate,
+      coordinate: { x: this.state.x || 0, y: this.state.y || 0 },
+      timesMoved: this.state.timesMoved || timesMoved,
+      setCoordinate: this.setCoordinate.bind(this),
       hidePiece: () => this.setState({ hidden: true })
     }
   }
@@ -52,6 +55,10 @@ export class Piece extends Component {
         <div className={`piece-${team} mdi mdi-chess-${pieceName} text-center`}></div>
       </div>
     )
+  }
+
+  isTeamTurn(turn) {
+    return turn === this.props.team;
   }
 
   inRange(value) {
@@ -170,6 +177,10 @@ export class Piece extends Component {
     this.setState({ ...roundedCoordinate, timesMoved: this.state.timesMoved + 1 })
     this.changeTurn();
     return true;
+  }
+
+  setCoordinate(coordinate) {
+    this.setState({ ...coordinate })
   }
 
   shakePiece() {
