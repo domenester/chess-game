@@ -29,7 +29,6 @@ class Knight extends Piece {
   }
 
   onStartDraggin(param1, param2) {
-    console.log('param2: ', param2, param2.x, param2.y)
     this.setState({ lastMoveCoordinate: { x: param2.x, y: param2.y } })
   }
 

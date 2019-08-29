@@ -33,7 +33,8 @@ export class Piece extends Component {
       y: 0,
       timesMoved: 0,
       direction: this.props.team === 'white' ? 1 : -1,
-      hidden: false
+      hidden: false,
+      transparency: 1
     });
     this.handlePieceInCoordinate({
       [ getCoordinateString( this.props.initialCoordinate ) ]: this.pieceInCoordinateNormalized()
@@ -55,7 +56,7 @@ export class Piece extends Component {
   build(pieceName) {
     const team = this.props.team || '';
     return (
-      <div className="piece" hidden={this.state.hidden}>
+      <div className="piece" hidden={this.state.hidden} style={{ opacity: this.state.transparency }}>
         <div className={`piece-${team} mdi mdi-chess-${pieceName} text-center`}></div>
       </div>
     )
@@ -195,6 +196,14 @@ export class Piece extends Component {
       x: coordinate.x || this.state.x,
       y: coordinate.y || this.state.y
     })
+  }
+
+  setTransparency(value = 1) {
+    this.setState({ transparency: value})
+  }
+
+  getTransparency() {
+    return this.state.transparency;
   }
 
   shakePiece() {

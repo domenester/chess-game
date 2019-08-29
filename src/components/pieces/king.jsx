@@ -5,12 +5,20 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { handlePieceInCoordinate, changeTurn } from '../board/boardActions'
 import KingRules from '../utils/rules/king.rules'
+import PieceAnimation from './piece/piece.animation'
 
 class King extends Piece {
 
   constructor(props) {
     super(props);
     this.state = { name: 'king' }
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // PieceAnimation(
+    //   this.setCoordinate
+    // ).startBlink( this.setTransparency.bind(this), super.getTransparency() )
   }
 
   render() {

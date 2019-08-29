@@ -1,5 +1,8 @@
 class PieceAnimation {
+
   setCoordinate;
+  blinker;
+  startedBlinkState;
 
   constructor(setCoordinate) {
     this.setCoordinate = setCoordinate;
@@ -22,6 +25,21 @@ class PieceAnimation {
         clearInterval (shaker);
       }
     }, 30);
+  }
+
+  startBlink(setTransparency, startedBlinkState) {
+    this.startedBlinkState = startedBlinkState;
+    let transparency = startedBlinkState;
+    this.blinker = setInterval(() => {
+      let newTransparency = transparency < 1 ? 1 : 0.5
+      setTransparency(newTransparency)
+      transparency = newTransparency
+    }, 250);
+  }
+
+  stopBlink(setTransparency) {
+    clearInterval(this.blinker);
+    setTransparency(this.startedBlinkState)
   }
 }
 
