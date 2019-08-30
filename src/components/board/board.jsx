@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { handlePieceInCoordinate, changeTurn } from './boardActions'
+import { stateToProps, dispatchToProps } from '../pieces/utils'
 import King from '../pieces/king'
 import Rook from '../pieces/rook'
 import Knight from '../pieces/knight'
@@ -9,6 +9,7 @@ import Bishop from '../pieces/bishop'
 import Queen from '../pieces/queen'
 import Pawn from '../pieces/pawn'
 import Square from './square/square'
+import SweetAlert from 'react-bootstrap-sweetalert'
 import './board.scss'
 
 class Board extends Component {
@@ -50,10 +51,32 @@ class Board extends Component {
 
   render() {
     return (
-      <div className="board row m-auto">
-        { this.buildBoard() }
-      </div>
+      <React.Fragment>
+        <div className="board row m-auto">
+          { this.buildBoard() }
+        </div>
+        {
+          this.props.board.endGame && 
+          <SweetAlert
+            confirmBtnText="Ok"
+            confirmBtnBsStyle="primary"
+            title="Fim de jogo" 
+            onConfirm={this.resetGame}
+          >
+            Time {this.getVictoriousTeamName()} venceu.
+          </SweetAlert>
+        }
+      </React.Fragment>
     )
+  }
+
+  resetGame = () => {
+    window.location.reload();
+  }
+
+  getVictoriousTeamName() {
+    if (this.props.board.turn === 'white') return 'Preto';
+    return 'Branco';
   }
 
   buildBoard() {
@@ -105,8 +128,10 @@ class Board extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  handlePieceInCoordinate, changeTurn
-}, dispatch)
+const mapStateToProps = (state) => stateToProps(state);
 
-export default connect(null, mapDispatchToProps)(Board)
+const mapDispatchToProps = dispatch => bindActionCreators(
+  dispatchToProps() , dispatch
+)
+
+export default connect(mapStateToProps, mapDispatchToProps)(Board)

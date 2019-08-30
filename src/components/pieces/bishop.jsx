@@ -3,7 +3,7 @@ import Draggable from 'react-draggable'
 import { Piece } from './piece/piece'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { handlePieceInCoordinate, changeTurn } from '../board/boardActions'
+import { stateToProps, dispatchToProps } from './utils'
 import DiagonalRules from '../utils/rules/diagonal.rules'
 
 class Bishop extends Piece {
@@ -58,12 +58,10 @@ class Bishop extends Piece {
   }
 }
 
-const mapStateToProps = (state) => ({
-  board: state.board,
-});
+const mapStateToProps = (state) => stateToProps(state);
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  handlePieceInCoordinate, changeTurn
-}, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators(
+  dispatchToProps() , dispatch
+)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Bishop);

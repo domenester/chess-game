@@ -3,7 +3,7 @@ import Draggable from 'react-draggable'
 import { Piece } from './piece/piece'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { handlePieceInCoordinate, changeTurn } from '../board/boardActions'
+import { stateToProps, dispatchToProps } from './utils'
 import KingRules from '../utils/rules/king.rules'
 import PieceAnimation from './piece/piece.animation'
 
@@ -66,12 +66,10 @@ class King extends Piece {
   }
 }
 
-const mapStateToProps = (state) => ({
-  board: state.board,
-});
+const mapStateToProps = (state) => stateToProps(state);
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  handlePieceInCoordinate, changeTurn
-}, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators(
+  dispatchToProps() , dispatch
+)
 
 export default connect(mapStateToProps, mapDispatchToProps)(King);

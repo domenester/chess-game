@@ -5,3 +5,7 @@ export const handlePieceInCoordinate = (payload) => {
 export const changeTurn = (payload) => {
   return { type: "CHANGE_TURN", payload }
 }
+
+export const endGame = (payload) => {
+  return { type: "END_GAME", payload }
+}

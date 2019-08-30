@@ -11,17 +11,16 @@ class PieceAnimation {
   shakePiece(y) {
     let intensity = 8;
     let count = 0;
-    let yStartedWith = y;
     let shaker = setInterval(() => {
       if (count%2 === 0) {
         this.setCoordinate({y: y + intensity})
       } else {
-        this.setCoordinate({y: y - intensity})
+        this.setCoordinate({y})
         intensity = intensity / 2;
       }
       count++;
       if ( intensity < 1 ) {
-        this.setCoordinate({y: yStartedWith})
+        this.setCoordinate({y})
         clearInterval (shaker);
       }
     }, 30);

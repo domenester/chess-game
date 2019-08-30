@@ -25,6 +25,7 @@
     "lodash": "^4.17.15",
     "prop-types": "^15.7.2",
     "react-bootstrap": "^1.0.0-beta.5",
+    "react-bootstrap-sweetalert": "^4.4.1",
     "react-currency-format": "^1.0.0",
     "react-draggable": "^3.3.1",
     "react-form-validator-core": "^0.6.2",

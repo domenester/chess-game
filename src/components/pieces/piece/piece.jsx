@@ -81,14 +81,19 @@ export class Piece extends Component {
     return this.state.initialCoordinate.y + yToMove;
   }
 
+  getBoardPieceInCoordinateByHash(coordinate, boardPieceInCoordinate) {
+    const xToMove = this.xToMove(coordinate.x);
+    const yToMove = this.yToMove(coordinate.y);
+    const coordinateAsHash = `${xToMove}${yToMove}`
+    return boardPieceInCoordinate[coordinateAsHash]
+  }
+
   handlePieceInCoordinateMoved(coordinate, boardPieceInCoordinate) {
     const xToMove = this.xToMove(coordinate.x);
     const yToMove = this.yToMove(coordinate.y);
-
     const coordinateAsHash = `${xToMove}${yToMove}`
-
     const pieceInCoordinate = boardPieceInCoordinate[coordinateAsHash]
-    
+
     if ( pieceInCoordinate && pieceInCoordinate.team === this.props.team ) return false;
 
     if ( pieceInCoordinate ) {
@@ -182,19 +187,36 @@ export class Piece extends Component {
     let x = data.x < 0 ? data.x : data.x * -1;
 
     if (!this.stoppedDragginInValidRange(x, y)) return;
+
     const roundedCoordinate = this.getRoundedCoordinate(data.x, data.y);
-    if (!validMove(roundedCoordinate) || !this.coordinateInsideBoard(
-      roundedCoordinate.x, roundedCoordinate.y)) return;
+
+    if ( !validMove(roundedCoordinate) || 
+         !this.coordinateInsideBoard( roundedCoordinate.x, roundedCoordinate.y)) {
+           return;
+    }
+
     if (!this.handlePieceInCoordinateMoved( roundedCoordinate, pieceInCoordinate )) return;
+
+    const enemyPiece = this.getBoardPieceInCoordinateByHash(roundedCoordinate, pieceInCoordinate)
+
+    if (this.checkIfIsKing(enemyPiece)) {
+      this.props.endGame(true);
+    }
+
     this.setState({ ...roundedCoordinate, timesMoved: this.state.timesMoved + 1 })
     this.changeTurn();
     return true;
   }
 
+  checkIfIsKing(enemyPiece) {
+    if (!enemyPiece) return;
+    return ( enemyPiece.name === 'king' && enemyPiece.team !== this.props.team )
+  }
+
   setCoordinate(coordinate) {
     this.setState({
-      x: coordinate.x || this.state.x,
-      y: coordinate.y || this.state.y
+      x: coordinate.x >= 0 ? coordinate.x : this.state.x,
+      y: coordinate.y >= 0 ? coordinate.y : this.state.y
     })
   }
 
